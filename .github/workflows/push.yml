@@ -1,5 +1,13 @@
 name: push
-on: [push, pull_request]
+on: 
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      pushImage:
+        description: 'Push Docker image'     
+        required: true
+        default: 'false'
 
 jobs:
   build:
@@ -48,7 +56,7 @@ jobs:
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
           context: .
           platforms: linux/amd64
-          push: ${{ env.SOURCE_TAG != 'latest' }}
+          push: ${{ env.SOURCE_TAG != 'latest' || github.event.inputs.pushImage == 'true' }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.SOURCE_TAG }}
       - name: Move cache
